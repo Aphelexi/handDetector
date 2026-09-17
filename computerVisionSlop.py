@@ -9,9 +9,11 @@ cam = cv.VideoCapture(0)
 mpHands = mp.solutions.hands
 mpDraw = mp.solutions.drawing_utils
 
+sixSevenImage = cv.resize(cv.imread("sixSevenImage.jpg"), (1280, 1000))
+
 detectionFrames = 20
-minDirectionChanges = 3
-movementThresh = 0.15
+minDirectionChanges = 5
+movementThresh = 2
 leftMovementHistory = deque(maxlen=detectionFrames) 
 rightMovementHistory = deque(maxlen=detectionFrames) 
 
@@ -65,7 +67,7 @@ def isPointing(hand_landmarks, whatFinger):
 def isOpenHand(hand_landmarks):
     return all(isPointing(hand_landmarks, f) for f in ["index", "middle", "ring", "pinky"])
 
-with mpHands.Hands(min_tracking_confidence=0.05, min_detection_confidence=0.12) as hands:
+with mpHands.Hands(min_tracking_confidence=0.05, min_detection_confidence=0.07) as hands:
     while cam.isOpened():
 
         #read and verify the camera is working
@@ -75,15 +77,15 @@ with mpHands.Hands(min_tracking_confidence=0.05, min_detection_confidence=0.12) 
         frame = cv.flip(frame, 1)  #flip the frame horizontally for a mirror effect
 
         #convert frame to RGB for processing
-        rgb_frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+        rgbFrame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
 
         #reset the (x, y) coordinates of the fingertips each frame
         fingertips = []
         seenLabels = set()
         #process and draw hand landmarks on the frame
-        process_frames = hands.process(rgb_frame)
-        if process_frames.multi_hand_landmarks and process_frames.multi_handedness:
-            for lm, handedness in zip(process_frames.multi_hand_landmarks, process_frames.multi_handedness):
+        processFrames = hands.process(rgbFrame)
+        if processFrames.multi_hand_landmarks and processFrames.multi_handedness:
+            for lm, handedness in zip(processFrames.multi_hand_landmarks, processFrames.multi_handedness):
                 label = handedness.classification[0].label
                 seenLabels.add(label)
                 mpDraw.draw_landmarks(frame, lm, mpHands.HAND_CONNECTIONS)
@@ -92,8 +94,9 @@ with mpHands.Hands(min_tracking_confidence=0.05, min_detection_confidence=0.12) 
                 if isOpenHand(lm) and waving:
                     wrist = lm.landmark[1]
                     cv.putText(frame, f"{label} six seven!", (100, 100), cv.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 2)
-                    #overlayImage(frame, wave_icon, int(wrist.x * frame.shape[1]) - 40, int(wrist.y * frame.shape[0]) - 100)
-
+                    cv.imshow("sixSevenImage", sixSevenImage)
+                    playsound("sixSevenAudio.mp3", block=False)
+                   
                 debug_y = int(150 if label == "Left" else 200)
                 hist = leftMovementHistory if label == "Left" else rightMovementHistory
                 cv.putText(frame, f"{label} history len: {len(hist)}", (100, debug_y),
