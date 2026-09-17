@@ -2,13 +2,14 @@ import cv2 as cv
 import mediapipe as mp
 import math
 from collections import deque
+from playsound import playsound
 
 #create a VideoCapture object to access the webcam, initialize mediapipe hands and drawing utils
 cam = cv.VideoCapture(0)
 mpHands = mp.solutions.hands
 mpDraw = mp.solutions.drawing_utils
 
-detectionFrames = 30
+detectionFrames = 20
 minDirectionChanges = 3
 movementThresh = 0.15
 leftMovementHistory = deque(maxlen=detectionFrames) 
@@ -64,7 +65,7 @@ def isPointing(hand_landmarks, whatFinger):
 def isOpenHand(hand_landmarks):
     return all(isPointing(hand_landmarks, f) for f in ["index", "middle", "ring", "pinky"])
 
-with mpHands.Hands(min_tracking_confidence=0.1, min_detection_confidence=0.1) as hands:
+with mpHands.Hands(min_tracking_confidence=0.05, min_detection_confidence=0.12) as hands:
     while cam.isOpened():
 
         #read and verify the camera is working
