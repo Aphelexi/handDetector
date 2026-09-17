@@ -11,8 +11,8 @@ mpDraw = mp.solutions.drawing_utils
 
 sixSevenImage = cv.resize(cv.imread("sixSevenImage.jpg"), (1280, 1000))
 
-detectionFrames = 20
-minDirectionChanges = 5
+detectionFrames = 25
+minDirectionChanges = 3
 movementThresh = 2
 leftMovementHistory = deque(maxlen=detectionFrames) 
 rightMovementHistory = deque(maxlen=detectionFrames) 
@@ -67,7 +67,7 @@ def isPointing(hand_landmarks, whatFinger):
 def isOpenHand(hand_landmarks):
     return all(isPointing(hand_landmarks, f) for f in ["index", "middle", "ring", "pinky"])
 
-with mpHands.Hands(min_tracking_confidence=0.05, min_detection_confidence=0.07) as hands:
+with mpHands.Hands(min_tracking_confidence=0.05, min_detection_confidence=0.01) as hands:
     while cam.isOpened():
 
         #read and verify the camera is working
