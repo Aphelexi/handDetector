@@ -1,8 +1,7 @@
 import cv2 as cv
 import mediapipe as mp
-import math
-from collections import deque
 from playsound import playsound
+from gestures import isWaving, isPointing, isOpenHand, leftMovementHistory, rightMovementHistory
 
 #create a VideoCapture object to access the webcam, initialize mediapipe hands and drawing utils
 cam = cv.VideoCapture(0)
